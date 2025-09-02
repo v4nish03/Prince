@@ -7,80 +7,82 @@ from functools import wraps
 from .queriesProductos import QueryProductos
 from apps.common.models import Seguimiento, Notificacion
 from apps.user_api.types import SeguimientoType, NotificacionType
-class PerfilType(graphene.ObjectType):
-    email = graphene.String()
-    username = graphene.String()
-    nombre = graphene.String()
-    apellidos = graphene.String()
-    celular = graphene.String()
-    is_seller = graphene.Boolean()
-    password = graphene.String()
+from apps.user_api.types import PerfilType,CategoriaType, ProductoType, TiendaType, ImagenType, SeguimientoType 
+
+# class PerfilType(graphene.ObjectType):
+#     email = graphene.String()
+#     username = graphene.String()
+#     nombre = graphene.String()
+#     apellidos = graphene.String()
+#     celular = graphene.String()
+#     is_seller = graphene.Boolean()
+#     password = graphene.String()
 
 
-# Tipos de datos para GraphQL
-class CategoriaType(graphene.ObjectType):
-    id = graphene.Int()
-    nombre = graphene.String()
+# # Tipos de datos para GraphQL
+# class CategoriaType(graphene.ObjectType):
+#     id = graphene.Int()
+#     nombre = graphene.String()
 
 
-class ProductoType(graphene.ObjectType):
-    id = graphene.Int()
-    nombre = graphene.String()
-    descripcion = graphene.String()
-    precio = graphene.Float()
-    tipo = graphene.String()
-    categoria = graphene.Field(CategoriaType)
-    tienda_id = graphene.Int()
-    url = graphene.String()
+# class ProductoType(graphene.ObjectType):
+#     id = graphene.Int()
+#     nombre = graphene.String()
+#     descripcion = graphene.String()
+#     precio = graphene.Float()
+#     tipo = graphene.String()
+#     categoria = graphene.Field(CategoriaType)
+#     tienda_id = graphene.Int()
+#     url = graphene.String()
 
-    def resolve_url(self, info):
-        request = info.context
-        return request.build_absolute_uri(f"/tienda/{self.tienda_id}/producto/{self.id}")
+#     def resolve_url(self, info):
+#         request = info.context
+#         return request.build_absolute_uri(f"/tienda/{self.tienda_id}/producto/{self.id}")
 
 
-class TiendaType(graphene.ObjectType):
-    id = graphene.Int()
-    nombre = graphene.String()
-    descripcion = graphene.String()
-    telefono = graphene.String()
-    direccion = graphene.String()
-    estado = graphene.String()
-    foto_perfil = graphene.String()
-    propietario_id = graphene.Int()
-    url = graphene.String() 
+# class TiendaType(graphene.ObjectType):
+#     id = graphene.Int()
+#     nombre = graphene.String()
+#     descripcion = graphene.String()
+#     telefono = graphene.String()
+#     direccion = graphene.String()
+#     estado = graphene.String()
+#     foto_perfil = graphene.String()
+#     propietario_id = graphene.Int()
+#     url = graphene.String() 
 
-    def resolve_url(self, info):
-        request = info.context
-        return request.build_absolute_uri(f"/tienda/{self.id}")
+#     def resolve_url(self, info):
+#         request = info.context
+#         return request.build_absolute_uri(f"/tienda/{self.id}")
     
-    def resolve_propietario_id(self, info):
-        return self.propietario.id
+#     def resolve_propietario_id(self, info):
+#         return self.propietario.id
 
-class ImagenType(graphene.ObjectType):
-    url = graphene.String()
+# class ImagenType(graphene.ObjectType):
+#     url = graphene.String()
 
-    class Meta:
-        model = Imagen
-        fields = ('id', 'nombre', 'archivo', 'esPrincipal', 'orden', 'producto', 'variante')
+#     class Meta:
+#         model = Imagen
+#         fields = ('id', 'nombre', 'archivo', 'esPrincipal', 'orden', 'producto', 'variante')
 
-    def resolve_url(self, info):
-        if self.archivo and hasattr(self.archivo, 'url'):
-            request = info.context
-            if request is not None:
-                return request.build_absolute_uri(self.archivo.url)
-            else:
-                return self.archivo.url
-        return None
+#     def resolve_url(self, info):
+#         if self.archivo and hasattr(self.archivo, 'url'):
+#             request = info.context
+#             if request is not None:
+#                 return request.build_absolute_uri(self.archivo.url)
+#             else:
+#                 return self.archivo.url
+#         return None
     
-class SeguimientoType(DjangoObjectType):
-    class Meta:
-        model = Seguimiento
-        fields = ("id", "usuario", "tienda", "fecha_creacion")
+# class SeguimientoType(DjangoObjectType):
+#     class Meta:
+#         model = Seguimiento
+#         fields = ("id", "usuario", "tienda", "fecha_creacion")
         
-class NotificacionType(DjangoObjectType):
-    class Meta:
-        model = Notificacion
-        fields = ("id", "usuario", "tienda", "producto", "tipo", "mensaje", "leida", "fecha_creacion")
+# class NotificacionType(DjangoObjectType):
+#     class Meta:
+#         model = Notificacion
+#         fields = ("id", "usuario", "tienda", "producto", "tipo", "mensaje", "leida", "fecha_creacion")
 
 # Decorador para proteger queries que requieren autenticación
 def login_required(func):
@@ -193,16 +195,6 @@ class Query(QueryProductos,graphene.ObjectType):
     def resolve_tienda_perfil(self, info, tienda_id):
         try:
             tienda = Tienda.objects.get(id=tienda_id, estado="activo")
-            return TiendaType(
-                id=tienda.id,
-                nombre=tienda.nombre,
-                descripcion=tienda.descripcion,
-                telefono=tienda.telefono,
-                direccion=tienda.direccion,
-                estado=tienda.estado,
-                propietario_id=tienda.propietario.id,
-                foto_perfil=tienda.foto_perfil.url if tienda.foto_perfil else None,
-                url=f"/tienda/{tienda.id}"
-            )
+            return tienda
         except Tienda.DoesNotExist:
             return None
