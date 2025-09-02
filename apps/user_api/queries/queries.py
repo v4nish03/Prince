@@ -135,7 +135,7 @@ class Query(QueryProductos,graphene.ObjectType):
     @login_required
     @vendedor_required
     def resolve_tienda_perfil(self, info, tienda_id):
-        user = user.info.context
+        user = info.context.user
         try:
             tienda = Tienda.objects.get(id=tienda_id, propietario=user, estado="activo")
             return tienda
