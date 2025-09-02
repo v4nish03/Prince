@@ -31,10 +31,19 @@ class CategoriaType(DjangoObjectType):
         fields = "__all__"
 
 class TiendaType(DjangoObjectType):
+    url = graphene.String()
     class Meta:
         model = Tienda
         fields = "__all__"
-
+    def resolve_url(self, info):
+        if not self.propietario:
+            return None
+        request = info.context
+        if info.context is not None:
+            return request.build_absolute_uri(f"/tienda/{self.id}")
+        else:
+            return f"/tienda/{self.tienda.id}"
+        
 class FavoritoType(DjangoObjectType):
     class Meta:
         model = Favorito
