@@ -1,0 +1,8 @@
+mutation {
+  login(email: "admin@example.com", password: "password123") {
+    token
+    userId
+    email
+    username
+  }
+}

@@ -1,0 +1,91 @@
+# Dashboard del vendedor
+query {
+  miTienda {
+    id
+    nombre
+    productos {
+      id
+      nombre
+      precioBase
+      estado
+      variantes {
+        id
+        stock
+        color
+      }
+      imagenes(esPrincipal: true) {
+        archivo
+      }
+    }
+  }
+}
+
+# Catálogo completo
+query {
+  tiendas {
+    id
+    nombre
+    productos(estado: "activo") {
+      id
+      nombre
+      precioBase
+      categoria {
+        nombre
+      }
+      variantes {
+        id
+        color
+        precio
+        stock
+        talla {
+          nombre
+        }
+      }
+      imagenes(esPrincipal: true) {
+        archivo
+      }
+    }
+  }
+}
+
+# Producto completo con todo
+query {
+  producto(id: 1) {
+    id
+    nombre
+    descripcion
+    precioBase
+    estado
+    fechaCreacion
+    tienda {
+      id
+      nombre
+      direccion
+      telefono
+    }
+    categoria {
+      nombre
+    }
+    variantes {
+      id
+      color
+      precio
+      stock
+      talla {
+        nombre
+        valor
+      }
+      imagenes {
+        archivo
+        esPrincipal
+        orden
+      }
+    }
+    imagenes {
+      id
+      archivo
+      esPrincipal
+      orden
+    }
+  }
+}

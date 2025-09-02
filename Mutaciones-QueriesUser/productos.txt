@@ -1,0 +1,207 @@
+<MUTACIONES>
+CrearProducto
+mutation {
+  crearProducto(
+    nombre: "Camiseta Básica"
+    descripcion: "Camiseta de algodón 100% de alta calidad"
+    precioBase: 25.99
+    categoriaId: 1
+  ) {
+    ok
+    message
+    productoId
+  }
+}
+
+EditarProducto
+mutation {
+  editarProducto(
+    productoId: 1
+    nombre: "Camiseta Premium"
+    descripcion: "Camiseta de algodón orgánico premium"
+    precioBase: 35.99
+    categoriaId: 2
+    estado: "activo"
+  ) {
+    ok
+    message
+  }
+}
+
+EliminarProducto
+mutation {
+  eliminarProducto(productoId: 1) {
+    ok
+    message
+  }
+}
+
+<QUERIES>
+ObtenerMisProductos
+query {
+  misProductos {
+    id
+    nombre
+    descripcion
+    precioBase
+    estado
+    fechaCreacion
+    categoria {
+      id
+      nombre
+    }
+    variantes {
+      id
+      color
+      precio
+      stock
+      talla {
+        nombre
+      }
+    }
+    imagenes {
+      id
+      nombre
+      archivo
+      esPrincipal
+      orden
+    }
+  }
+}
+
+ProductosPorID
+query {
+  producto(id: 1) {
+    id
+    nombre
+    descripcion
+    precioBase
+    estado
+    fechaCreacion
+    tienda {
+      nombre
+      usuario {
+        username
+      }
+    }
+    categoria {
+      nombre
+    }
+    variantes {
+      id
+      color
+      precio
+      stock
+      talla {
+        nombre
+        valor
+      }
+      imagenes {
+        archivo
+        esPrincipal
+      }
+    }
+    imagenes {
+      id
+      archivo
+      esPrincipal
+      orden
+    }
+  }
+}
+
+ProductosPorCategoria
+query {
+  productosPorCategoria(categoriaId: 1) {
+    id
+    nombre
+    precioBase
+    estado
+    tienda {
+      nombre
+    }
+    imagenes(esPrincipal: true) {
+      archivo
+    }
+  }
+}
+
+BuscarProductos
+query {
+  buscarProductos(busqueda: "camiseta") {
+    id
+    nombre
+    descripcion
+    precioBase
+    tienda {
+      nombre
+    }
+    imagenes(esPrincipal: true) {
+      archivo
+    }
+  }
+}
+
+TodosProductos
+query ObtenerProductos {
+  productos {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}
+
+
+BuscarProductosNombre
+query BuscarProductos {
+  buscarProductos(nombre: "Camisa") {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}
+
+ProductosPorCategoria
+query ProductosPorCategoria {
+  productosPorCategoria(categoriaId: 1) {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}
+ProductosPorTipo
+query ProductosPorTipo {
+  productosPorTipo(tipo: "Mujer") {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}

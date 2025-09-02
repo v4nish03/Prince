@@ -1,0 +1,45 @@
+Registrar
+  mutation RegistroUsuario {
+    registroUsuario(
+      username: "juanperez"
+      email: "juan@ejemplo.com"
+      password: "mipassword123"
+      nombre: "Juan"
+      apellidos: "Pérez García"
+      celular: "70123456"
+    ) {
+      ok
+      message
+      userId
+    }
+  }
+
+EditarPerfil
+mutation EditarPerfil {
+  editarPerfil(
+    nombre: "Juan Carlos"
+    apellidos: "Pérez García"
+    celular: "70987654"
+  ) {
+    ok
+    message
+  }
+}
+
+CambiarContrasena
+mutation CambiarContrasena {
+  cambiarContrasena(
+    oldPassword: "mipassword123"
+    newPassword: "nuevapassword456"
+  ) {
+    ok
+    message
+  }
+}
+
+
+<Query>
+ObtenerPerfil
+query MiPerfil {
+  perfil
+}

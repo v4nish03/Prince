@@ -1,0 +1,79 @@
+CrearTienda
+mutation {
+  crearTienda(
+    nombre: "Mi Tienda Increíble"
+    descripcion: "Vendemos los mejores productos"
+    direccion: "Calle Principal 123, Ciudad"
+    telefono: "555-0123"
+  ) {
+    ok
+    message
+    tiendaId
+  }
+} 
+
+EditarTienda
+mutation {
+  editarTienda(
+    nombre: "Mi Tienda Renovada"
+    descripcion: "Nueva descripción mejorada"
+    direccion: "Nueva dirección 456"
+    telefono: "555-9876"
+  ) {
+    ok
+    message
+  }
+}
+
+EliminarTienda
+mutation {
+  eliminarTienda {
+    ok
+    message
+  }
+}
+
+<Query>
+TodasTiendas
+query ObtenerTiendas {
+  tiendas {
+    id
+    nombre
+    descripcion
+    direccion
+    telefono
+  }
+  usuario{
+    username
+  }
+  productos{
+    id
+    nombre
+    precioBase
+  }
+}
+TiendaPorID
+query TiendaPorId {
+  tiendaPorId(tiendaId: 1) {
+    id
+    nombre
+    descripcion
+    usuarioId
+  }
+}
+
+query {
+  tienda(id: 1) {
+    id
+    nombre
+    descripcion
+    direccion
+    telefono
+    productos {
+      id
+      nombre
+      precioBase
+      estado
+    }
+  }
+}

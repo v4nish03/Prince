@@ -1,0 +1,1 @@
+Variantes es otra prenda en una sola publicacion, falta implementar bien su modelo(es una adicion)

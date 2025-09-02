@@ -1,0 +1,11 @@
+mutation LoginUsuario {
+  loginUsuario(
+    email: "juan@ejemplo.com"
+    password: "mipassword123"
+  ) {
+    token
+    userId
+    email
+    username
+  }
+}

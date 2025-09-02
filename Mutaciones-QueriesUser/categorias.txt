@@ -1,0 +1,32 @@
+# Obtener todas las categorías
+query {
+  categorias {
+    id
+    nombre
+    descripcion
+    activo
+    productos {
+      id
+      nombre
+      precioBase
+    }
+  }
+}
+
+# Obtener categoría por ID
+query {
+  categoria(id: 1) {
+    id
+    nombre
+    descripcion
+    productos {
+      id
+      nombre
+      precioBase
+      estado
+      tienda {
+        nombre
+      }
+    }
+  }
+}

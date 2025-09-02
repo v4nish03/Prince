@@ -1,0 +1,64 @@
+Crear
+mutation {
+  createCategoria(
+    nombre: "Ropa de Mujer",
+    icono: "fa-shirt",
+    color: "#FF69B4",
+    categoriaPadreId: 1
+  ) {
+    ok
+    message
+    categoria {
+      id
+      nombre
+    }
+  }
+}
+
+Modificar
+mutation {
+  updateCategoria(
+    id: 1
+    nombre: "Ropa Deportiva"
+    icono: "mdi-soccer"
+    color: "#FF5733"
+    categoriaPadreId: 2
+  ) {
+    ok
+    massage
+    categoria {
+      id
+      nombre
+      icono
+      color
+      categoriaPadre {
+        id
+        nombre
+      }
+    }
+  }
+}
+
+mutation {
+  deleteCategoria(id: 1) {
+    ok
+    message
+  }
+}
+
+<Queries>
+Todas las categorias
+query {
+  allCategorias {
+    id
+    nombrelimit
+  }
+}
+
+Categoria por ID
+query {
+  categoriaById(id: "1") {
+    id
+    nombre
+  }
+}

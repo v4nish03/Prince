@@ -1,0 +1,94 @@
+USUARIO NORMAL
+Crear
+mutation {
+  createUser(
+    email: "usuario@example.com"
+    password: "password123"
+    username: "usuario1"
+    nombre: "Juan"
+    apellidos: "Pérez"
+    celular: "123456789"
+  ) {
+    ok
+    message
+    userId
+  }
+}
+
+Actualizar
+mutation {
+  updateUser(
+    id: "1"
+    email: "nuevo@example.com"
+    nombre: "Nuevo Nombre"
+    isStaff: true
+  ) {
+    user {
+      id
+      email
+      nombre
+      isStaff
+    }
+  }
+}
+
+Eliminar
+mutation {
+  deleteUser(id: "1") {
+    ok
+  }
+}
+
+cambiarContrasena
+mutation {
+  cambiarContrasena(
+    id: "1"
+    oldPassword: "password123"
+    newPassword: "newpassword456"
+  ) {
+    ok
+    message
+  }
+}
+<Queries>
+Consultar Usuarios
+  query {
+    allUsers(limit: 10, offset: 0) {
+      id
+      email
+      username
+      nombre
+      apellidos
+      isStaff
+      isActive
+    }
+  }
+
+Usuario por ID
+query {
+  userById(id: "1") {
+    id
+    email
+    username
+    nombre
+    apellidos
+    celular
+  }
+}
+
+ADMINISTRADOR
+Crear
+mutation {
+  crearAdmin(
+    email: "admin@example.com"
+    username: "admin1"
+    password: "password123"
+    nombre: "Admin"
+    apellidos: "Principal"
+    celular: "987654321"
+  ) {
+    ok
+    message
+    adminId
+  }
+}

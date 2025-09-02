@@ -1,0 +1,112 @@
+<MUTACIONES>
+
+CrearVariante
+mutation {
+  crearVariante(
+    productoId: 1
+    tallaId: 2
+    color: "Azul"
+    precio: 29.99
+    stock: 50
+  ) {
+    ok
+    message
+    varianteId
+  }
+}
+
+CrearVariante
+mutation {
+  crearVariante(
+    productoId: 1
+    color: "Rojo"
+    precio: 27.99
+    stock: 30
+  ) {
+    ok
+    message
+    varianteId
+  }
+}
+
+EditarVariante
+mutation {
+  editarVariante(
+    varianteId: 1
+    tallaId: 3
+    color: "Verde"
+    precio: 32.99
+    stock: 25
+  ) {
+    ok
+    message
+  }
+}
+
+EliminarVariante
+mutation {
+  eliminarVariante(varianteId: 1) {
+    ok
+    message
+  }
+}
+
+<QUERIES>
+VariantePorProducto
+query {
+  variantesProducto(productoId: 1) {
+    id
+    color
+    precio
+    stock
+    talla {
+      id
+      nombre
+      valor
+    }
+    imagenes {
+      id
+      archivo
+      esPrincipal
+      orden
+    }
+  }
+}
+
+VariantesPorID
+query {
+  variante(id: 1) {
+    id
+    color
+    precio
+    stock
+    producto {
+      id
+      nombre
+      descripcion
+    }
+    talla {
+      nombre
+      valor
+    }
+    imagenes {
+      id
+      archivo
+      esPrincipal
+      nombre
+    }
+  }
+}
+
+VariantesConStockDisponible
+query {
+  variantesConStock(productoId: 1) {
+    id
+    color
+    precio
+    stock
+    talla {
+      nombre
+    }
+  }
+}

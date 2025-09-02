@@ -1,0 +1,90 @@
+El token de vendedor debe ser verificado
+CrearProducto
+mutation CrearProducto {
+  crearProducto(
+    nombre: "Camisetas"
+    descripcion: "Camisetas para varon"
+    precioBase: 1500.00
+    categoriaId: 1
+  ) {
+    ok
+    message
+    productoId
+  }
+}
+
+mutation EditarProducto {
+  editarProducto(
+    productoId: 1
+    nombre: "Laptop Gaming Pro"
+    descripcion: "Laptop gaming actualizada con mejores especificaciones"
+    precioBase: 1800.00
+    categoriaId: 2
+    estado: "activo"
+  ) {
+    ok
+    message
+  }
+
+EliminarProducto
+mutation EditarProducto {
+  editarProducto(
+    productoId: 1
+    nombre: "Laptop Gaming Pro"
+    descripcion: "Laptop gaming actualizada con mejores especificaciones"
+    precioBase: 1800.00
+    categoriaId: 2
+    estado: "activo"
+  ) {
+    ok
+    message
+  }
+
+<Queries  //Solo se mostraran los productos del vendedor
+TodosProductos
+query MisProductos {
+  misProductos {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}
+
+ProductoPorID
+query MiProductoPorId {
+  productoPorId(productoId: 1) {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}
+
+PorEstado(inactivo-activo-agotadox)
+query MisProductosPorEstado {
+  productosPorEstado(estado: "activo") {
+    id
+    nombre
+    descripcion
+    precio
+    tipo
+    categoria {
+      id
+      nombre
+    }
+    tiendaId
+  }
+}

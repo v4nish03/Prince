@@ -1,0 +1,29 @@
+Crear
+mutation {
+  createTienda(
+    nombre: "Mi Tienda"
+    propietarioId: "1"
+  ) {
+    tienda {
+      id
+      nombre
+      propietario {
+        id
+        nombre
+        email
+      }
+    }
+  }
+}
+
+Tienda por ID
+query {
+  tiendaById(id: "1") {
+    id
+    nombre
+    propietario {
+      nombre
+      email
+    }
+  }
+}

@@ -1,0 +1,20 @@
+Crear
+mutation {
+  createImagen(
+    nombre: "Imagen Principal"
+    archivo: $file
+    esPrincipal: true
+    orden: 1
+    productoId: "1"
+  ) {
+    imagen {
+      id
+      nombre
+      esPrincipal
+      orden
+      producto {
+        nombre
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+    MUTACIONES
+Agregar a misFavoritos
+mutation {
+  agregarFavorito(productoId: 1) {
+    favorito {
+      id
+      producto {
+        id
+        nombre
+      }
+    }
+  }
+}
+
+Eliminar favorito
+mutation {
+  eliminarFavorito(productoId: 1) {
+    ok
+  }
+}
+
+    QUERIES
+query {
+  misFavoritos {
+    id
+    nombre
+    descripcion
+    precio
+    tienda {
+      nombre
+    }
+  }
+}

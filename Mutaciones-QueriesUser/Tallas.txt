@@ -1,0 +1,27 @@
+# Obtener todas las tallas
+query {
+  tallas {
+    id
+    nombre
+    valor
+    activo
+  }
+}
+
+# Obtener talla por ID
+query {
+  talla(id: 1) {
+    id
+    nombre
+    valor
+    variantes {
+      id
+      color
+      precio
+      stock
+      producto {
+        nombre
+      }
+    }
+  }
+}

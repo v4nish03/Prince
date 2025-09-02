@@ -1,0 +1,237 @@
+MUTACIONES
+
+<--Usuarios
+<--Crear Usuario normal
+mutation {
+  crearUsuario(
+    email: "usuario1@mail.com"
+    username: "usuarioprueba1"
+    password: "contrasegura123"
+    nombre: "Pedro"
+    apellidos: "Sánchez"
+    celular: "76543210"
+  ) {
+    ok
+    message
+    userId
+  }
+}
+
+Cambiar Contrasena
+mutation {
+  cambiarContrasena(id: "1", oldPassword: "12345678", newPassword: "nuevaClaveSegura123") {
+    ok
+    message
+  }
+}
+
+
+Suspender Usuario
+mutation {
+  suspenderUsuario(id: "5", motivo: "Incumplimiento de normas") {
+    ok
+    message
+  }
+}
+
+
+
+<--Categorias Operaciones
+<CREAR
+mutation {
+  crearCategoria(nombre: "Camisas") {
+    ok
+    message
+    categoria {
+      id
+      nombre
+    }
+  }
+}
+
+<Editar
+mutation {
+  editarCategoria(id: "1", nombre: "Poleras") {
+    ok
+    message
+    categoria {
+      id
+      nombre
+    }
+  }
+}
+
+<Eliminar
+mutation {
+  eliminarCategoria(id: "1") {
+    ok
+    message
+  }
+}
+
+
+<--Talla
+<Crear
+mutation {
+  crearTalla(nombre: "M") {
+    ok
+    message
+    talla {
+      id
+      nombre
+    }
+  }
+}
+
+<Editar
+mutation {
+  editarTalla(id: "1", nombre: "L") {
+    ok
+    message
+    talla {
+      id
+      nombre
+    }
+  }
+}
+
+<Eliminar
+mutation {
+  eliminarTalla(id: "1") {
+    ok
+    message
+  }
+}
+
+
+<--Tienda
+<Crear
+mutation {
+  crearTienda(nombre: "Moda Retro", descripcion: "Ropa vintage en excelente estado") {
+    ok
+    message
+    tienda {
+      id
+      nombre
+      descripcion
+    }
+  }
+}
+
+<Editar
+mutation {
+  editarTienda(id: "1", nombre: "Moda Moderna", descripcion: "Ahora con más estilo") {
+    ok
+    message
+    tienda {
+      id
+      nombre
+      descripcion
+    }
+  }
+}
+
+<Eliminar
+mutation {
+  eliminarTienda(id: "1") {
+    ok
+    message
+  }
+}
+
+
+<--Productos Operaciones
+<Crear
+mutation {
+  crearProducto(
+    nombre: "Jean Clásico"
+    descripcion: "Buen estado, azul oscuro"
+    precio: 70.0
+    stock: 5
+    tipo: "varon"
+    categoriaId: "1"
+    tiendaId: "1"
+  ) {
+    ok
+    message
+    producto {
+      id
+      nombre
+    }
+  }
+}
+
+<Editar
+mutation {
+  editarProducto(
+    id: "1"
+    nombre: "Jean Slim"
+    descripcion: "Cambio de estilo"
+    precio: 85.0
+    stock: 4
+    tipo: "varon"
+    categoriaId: "1"
+    tiendaId: "1"
+  ) {
+    ok
+    message
+    producto {
+      id
+      nombre
+    }
+  }
+}
+
+<Eliminar
+mutation {
+  eliminarProducto(id: "1") {
+    ok
+    message
+  }
+}
+
+
+<--Imagen Operaciones
+<Crear
+mutation($archivo: Upload!) {
+  crearImagen(
+    nombre: "Imagen principal"
+    esPrincipal: true
+    orden: 1
+    productoId: "1"
+    archivo: $archivo
+  ) {
+    ok
+    message
+    imagen {
+      id
+      nombre
+    }
+  }
+}
+
+<Editar
+mutation($archivo: Upload) {
+  editarImagen(
+    id: "1"
+    nombre: "Nueva Imagen"
+    esPrincipal: false
+    orden: 2
+    archivo: $archivo
+  ) {
+    ok
+    message
+    imagen {
+      id
+      nombre
+    }
+  }
+}
+
+<Eliminar
+mutation {
+  eliminarImagen(id: "1") {
+    ok
+    message
+  }
+}

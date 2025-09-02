@@ -1,0 +1,42 @@
+#Usuario
+<login
+mutation {
+  loginUser(email: "usuario@mail.com", password: "segura123") {
+    token
+    email
+    username
+    userId
+  }
+}
+
+<Registro
+mutation {
+  registerUser(
+    email: "nuevo@correo.com"
+    password: "claveSegura"
+    username: "nuevo"
+    nombre: "Nuevo"
+    apellidos: "Usuario"
+    celular: "76543210"
+  ) {
+    ok
+    message
+    userId
+  }
+}
+
+<Editar
+mutation {
+  editarPerfil(nombre: "Johnny", apellidos: "Doé", celular: "77777777") {
+    ok
+    message
+  }
+}
+
+<Cambiar Contrasena
+mutation {
+  cambiarContrasena(oldPassword: "12345678", newPassword: "nuevaClave123") {
+    ok
+    message
+  }
+}

@@ -1,0 +1,87 @@
+Crear
+mutation {
+  createProducto(
+    nombre: "Camiseta Blanca"
+    precioBase: "25.96"
+    tiendaId: "3"
+    categoriaId: "6"
+  ) {
+    producto {
+      id
+      nombre
+      precioBase
+      tienda {
+        nombre
+      }
+      categoria {
+        nombre
+      }
+    }
+  }
+}
+
+Actualizar
+mutation {
+  updateProducto(
+    id: "8"
+    nombre: "Camiseta Premium"
+    precioBase: "35.99"
+    estado: "activo"
+    categoriaId: "3"
+  ) {
+    producto {
+      id
+      nombre
+      precioBase
+      estado
+      categoria {
+        nombre
+      }
+    }
+  }
+}
+
+Eliminar
+mutation {
+  deleteProducto(id: "1") {
+    ok
+  }
+}
+
+
+<Queries>
+Todo
+query {
+  allProductos(limit: 20) {
+    id
+    nombre
+    precioBase
+    estado
+    tienda {
+      nombre
+    }
+    categoria {
+      nombre
+    }
+  }
+}
+
+
+Por id
+query {
+  productoById(id: "1") {
+    id
+    nombre
+    precioBase
+    estado
+    tienda {
+      nombre
+      propietario {
+        nombre
+      }
+    }
+    categoria {
+      nombre
+    }
+  }
+}

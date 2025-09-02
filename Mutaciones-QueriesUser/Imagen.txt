@@ -1,0 +1,101 @@
+# Subir imagen a producto
+mutation {
+  subirImagenProducto(
+    productoId: 1
+    imagenBase64: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+    nombre: "Imagen principal del producto"
+    esPrincipal: true
+    orden: 1
+  ) {
+    ok
+    message
+    imagenId
+  }
+}
+
+# Subir imagen a variante
+mutation {
+  subirImagenVariante(
+    varianteId: 1
+    imagenBase64: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+    nombre: "Imagen de variante azul"
+    esPrincipal: true
+    orden: 1
+  ) {
+    ok
+    message
+    imagenId
+  }
+}
+
+# Eliminar imagen
+mutation {
+  eliminarImagen(imagenId: 1) {
+    ok
+    message
+  }
+}
+
+# Actualizar orden de imagen
+mutation {
+  actualizarOrdenImagen(
+    imagenId: 1
+    nuevoOrden: 3
+  ) {
+    ok
+    message
+  }
+}
+Queries:
+graphql# Obtener imágenes de un producto
+query {
+  imagenesProducto(productoId: 1) {
+    id
+    nombre
+    archivo
+    esPrincipal
+    orden
+  }
+}
+
+# Obtener imágenes de una variante
+query {
+  imagenesVariante(varianteId: 1) {
+    id
+    nombre
+    archivo
+    esPrincipal
+    orden
+  }
+}
+
+# Obtener imagen por ID
+query {
+  imagen(id: 1) {
+    id
+    nombre
+    archivo
+    esPrincipal
+    orden
+    producto {
+      id
+      nombre
+    }
+    variante {
+      id
+      color
+      producto {
+        nombre
+      }
+    }
+  }
+}
+
+# Obtener solo imágenes principales
+query {
+  imagenesPrincipales(productoId: 1) {
+    id
+    archivo
+    nombre
+  }
+}
