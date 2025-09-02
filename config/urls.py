@@ -28,7 +28,7 @@ from apps.superadmin_api.schema_superadmin import superadmin_schema
 urlpatterns = [
     path('adminPy/', admin.site.urls),
     path('graphql/admin/', csrf_exempt(PrivateGraphQLView.as_view(graphiql=True, schema=admin_schema))),
-    path('graphql/user1/', csrf_exempt(UserFileUploadGraphQLView.as_view(graphiql=True, schema=user_schema))),
+    path('graphql/user/', csrf_exempt(UserFileUploadGraphQLView.as_view(graphiql=True, schema=user_schema))),
     path('graphql/superadmin/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=superadmin_schema)))
 ]
 

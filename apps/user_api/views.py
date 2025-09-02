@@ -24,6 +24,4 @@ class UserFileUploadGraphQLView(FileUploadGraphQLView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context(self, request):
-        context = super().get_context(request)
-        context.user = getattr(request, 'user', AnonymousUser())
-        return context
+        return request

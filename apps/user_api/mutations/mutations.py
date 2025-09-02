@@ -1,16 +1,9 @@
 import graphene
 from graphql import GraphQLError
 from .utils_logs import log_mutation
-from apps.common.models import (
-    CustomUser,
-    Tienda,
-    Categoria,
-    Producto,
-    Variante,
-    Imagen,
-    Talla,
-    UserLog,
-)
+from apps.common.models import (CustomUser,Tienda,Categoria,Producto,Variante,Imagen,
+                                Talla,
+                                UserLog,)
 from apps.common.models.favoritos import Favorito
 from apps.user_api.types import SeguimientoType, Seguimiento, Notificacion, NotificacionType
 from ..auth import generate_jwt
@@ -19,7 +12,6 @@ from functools import wraps
 from ..validador import validar_usuario_vendedor
 from django.core.files.base import ContentFile
 from graphene_file_upload.scalars import Upload
-from apps.user_api.types import SeguimientoType, NotificacionType
 import uuid
 
 def vendedor_required(func):
@@ -602,8 +594,11 @@ class EliminarImagen(graphene.Mutation):
     @vendedor_required
     def mutate(self, info, imagen_id):
         user = info.context.user
-        tienda = Tienda.objects.get(propietario=user, estado="activo")
-
+        try:
+            tienda = Tienda.objects.get(propietario=user, estado="activo")
+        except Tienda.DoesNotExist:
+            raise GraphQLError("Tienda no encontrada o inactiva.")
+        
         try:
             # Buscar imagen tanto en productos como en variantes de la tienda
             imagen = Imagen.objects.filter(

@@ -181,7 +181,7 @@ LOGGING = {
 }
 
 GRAPHENE = {
-    "SCHEMA": "user_api.schema.schema",
+    "SCHEMA": "apps.user_api.schema_user.schema_user",
     "MIDDLEWARE": [
         "graphql_jwt.middleware.JSONWebTokenMiddleware",
     ],

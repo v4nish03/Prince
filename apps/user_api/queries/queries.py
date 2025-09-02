@@ -9,81 +9,6 @@ from apps.common.models import Seguimiento, Notificacion
 from apps.user_api.types import SeguimientoType, NotificacionType
 from apps.user_api.types import PerfilType,CategoriaType, ProductoType, TiendaType, ImagenType, SeguimientoType 
 
-# class PerfilType(graphene.ObjectType):
-#     email = graphene.String()
-#     username = graphene.String()
-#     nombre = graphene.String()
-#     apellidos = graphene.String()
-#     celular = graphene.String()
-#     is_seller = graphene.Boolean()
-#     password = graphene.String()
-
-
-# # Tipos de datos para GraphQL
-# class CategoriaType(graphene.ObjectType):
-#     id = graphene.Int()
-#     nombre = graphene.String()
-
-
-# class ProductoType(graphene.ObjectType):
-#     id = graphene.Int()
-#     nombre = graphene.String()
-#     descripcion = graphene.String()
-#     precio = graphene.Float()
-#     tipo = graphene.String()
-#     categoria = graphene.Field(CategoriaType)
-#     tienda_id = graphene.Int()
-#     url = graphene.String()
-
-#     def resolve_url(self, info):
-#         request = info.context
-#         return request.build_absolute_uri(f"/tienda/{self.tienda_id}/producto/{self.id}")
-
-
-# class TiendaType(graphene.ObjectType):
-#     id = graphene.Int()
-#     nombre = graphene.String()
-#     descripcion = graphene.String()
-#     telefono = graphene.String()
-#     direccion = graphene.String()
-#     estado = graphene.String()
-#     foto_perfil = graphene.String()
-#     propietario_id = graphene.Int()
-#     url = graphene.String() 
-
-#     def resolve_url(self, info):
-#         request = info.context
-#         return request.build_absolute_uri(f"/tienda/{self.id}")
-    
-#     def resolve_propietario_id(self, info):
-#         return self.propietario.id
-
-# class ImagenType(graphene.ObjectType):
-#     url = graphene.String()
-
-#     class Meta:
-#         model = Imagen
-#         fields = ('id', 'nombre', 'archivo', 'esPrincipal', 'orden', 'producto', 'variante')
-
-#     def resolve_url(self, info):
-#         if self.archivo and hasattr(self.archivo, 'url'):
-#             request = info.context
-#             if request is not None:
-#                 return request.build_absolute_uri(self.archivo.url)
-#             else:
-#                 return self.archivo.url
-#         return None
-    
-# class SeguimientoType(DjangoObjectType):
-#     class Meta:
-#         model = Seguimiento
-#         fields = ("id", "usuario", "tienda", "fecha_creacion")
-        
-# class NotificacionType(DjangoObjectType):
-#     class Meta:
-#         model = Notificacion
-#         fields = ("id", "usuario", "tienda", "producto", "tipo", "mensaje", "leida", "fecha_creacion")
-
 # Decorador para proteger queries que requieren autenticación
 def login_required(func):
     @wraps(func)
@@ -94,7 +19,19 @@ def login_required(func):
         return func(root, info, *args, **kwargs)
     return wrapper
 
-
+# Decorador para proteger queries que requieren ser vendedor
+def vendedor_required(func):
+    @wraps(func)
+    def wrapper(root, info, *args, **kwargs):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("Autenticación requerida.")
+        if not user.is_seller:
+            raise GraphQLError("Permiso denegado. Solo vendedores pueden realizar esta acción.")
+        if not Tienda.objects.filter(propietario=user, estado="activo").exists():
+            raise GraphQLError("Debes tener una tienda activa para crear productos.")
+        return func(root, info, *args, **kwargs)
+    return wrapper
 
 
 # Clase principal de Queries
@@ -103,19 +40,11 @@ class Query(QueryProductos,graphene.ObjectType):
     categorias = graphene.List(CategoriaType)
     productos = graphene.List(ProductoType)
     buscar_productos = graphene.List(ProductoType, nombre=graphene.String(required=True))
+    productos = graphene.List(ProductoType, limit=graphene.Int(), offset=graphene.Int())
     productos_por_categoria = graphene.List(ProductoType, categoria_id=graphene.Int(required=True))
     productos_por_tipo = graphene.List(ProductoType, tipo=graphene.String(required=True))
     tiendas = graphene.List(TiendaType)
     tienda_por_id = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
-    perfil = graphene.Field(PerfilType)
-    
-    
-    mis_tiendas_seguidas = graphene.List(TiendaType)
-    mis_seguimientos = graphene.List(SeguimientoType)
-    mis_notificaciones = graphene.List(
-        NotificacionType,
-        solo_no_leidas=graphene.Boolean(required=False, default_value=False)
-    )
 
     def resolve_categorias(self, info):
         return Categoria.objects.filter()
@@ -124,15 +53,19 @@ class Query(QueryProductos,graphene.ObjectType):
         from apps.common.models.producto import Producto
         return Producto.objects.get(id=id)
 
-    def resolve_productos(self, info):
-        from apps.common.models.producto import Producto
-        return Producto.objects.all()
+    def resolve_productos(self, info, limit=None, offset=None):
+        queryset = Producto.objects.select_related('tienda', 'categoria').prefetch_related('imagenes').all()
+        if offset is not None:
+            queryset = queryset[offset:]
+        elif limit is not None:
+            queryset = queryset[:limit]
+        return queryset
 
     def resolve_buscar_productos(self, info, nombre):
-        return Producto.objects.filter(nombre__icontains=nombre, estado='activo')
+        return Producto.objects.select_related('tienda', 'categoria').prefetch_related('imagenes').filter(nombre__icontains=nombre, estado='activo')
 
     def resolve_productos_por_categoria(self, info, categoria_id):
-        return Producto.objects.filter(categoria_id=categoria_id, estado='activo')
+        return Producto.objects.select_related('tienda', 'categoria').prefetch_related('imagenes').filter(categoria_id=categoria_id, estado='activo')
 
     def resolve_productos_por_tipo(self, info, tipo):
         return Producto.objects.filter(tipo__iexact=tipo, estado='activo')
@@ -149,8 +82,14 @@ class Query(QueryProductos,graphene.ObjectType):
             raise GraphQLError("Tienda no encontrada")
 
     # --------- QUERIES PRIVADAS (con login) ---------
+    perfil = graphene.Field(PerfilType)
     mis_favoritos = graphene.List(ProductoType)
-    mis_tiendas = graphene.List(TiendaType)
+    mis_tiendas_seguidas = graphene.List(TiendaType)
+    mis_seguimientos = graphene.List(SeguimientoType)
+    mis_notificaciones = graphene.List(
+        NotificacionType,
+        solo_no_leidas=graphene.Boolean(required=False, default_value=False)
+    )
 
     @login_required
     def resolve_perfil(self, info):
@@ -162,7 +101,7 @@ class Query(QueryProductos,graphene.ObjectType):
     @login_required
     def resolve_mis_favoritos(self, info):
         user = info.context.user
-        return [fav.producto for fav in Favorito.objects.filter(usuario=user)]
+        return [fav.producto for fav in Favorito.objects.select_related('producto').filter(usuario=user)]
 
     @login_required
     def resolve_mis_tiendas_seguidas(self, info):
@@ -186,15 +125,19 @@ class Query(QueryProductos,graphene.ObjectType):
     
     #QUERIES PRIVADAS DE VENDEDORES
     tienda_perfil = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
+    mis_tiendas = graphene.List(TiendaType)
     @login_required
+    @vendedor_required
     def resolve_mis_tiendas(self, info):
         user = info.context.user
         return Tienda.objects.filter(propietario=user, estado='activo')
     
     @login_required
+    @vendedor_required
     def resolve_tienda_perfil(self, info, tienda_id):
+        user = user.info.context
         try:
-            tienda = Tienda.objects.get(id=tienda_id, estado="activo")
+            tienda = Tienda.objects.get(id=tienda_id, propietario=user, estado="activo")
             return tienda
         except Tienda.DoesNotExist:
             return None
