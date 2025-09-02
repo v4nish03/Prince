@@ -62,7 +62,7 @@ class NotificacionType(DjangoObjectType):
 class PerfilType(DjangoObjectType):
     class Meta:
         model = Usuario
-        fields = ("id", "email", "username", "nombre", "apellidos", "celular", "is_seller", "password")
+        fields = ("id", "email", "username", "nombre", "apellidos", "celular", "is_seller", "password", "foto_perfil")
         
 class ImagenType(DjangoObjectType):
     url = graphene.String()

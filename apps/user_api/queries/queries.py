@@ -126,6 +126,8 @@ class Query(QueryProductos,graphene.ObjectType):
     #QUERIES PRIVADAS DE VENDEDORES
     tienda_perfil = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
     mis_tiendas = graphene.List(TiendaType)
+    mis_productos = graphene.List(ProductoType, tienda_id=graphene.Int(required=True))
+    
     @login_required
     @vendedor_required
     def resolve_mis_tiendas(self, info):
@@ -141,3 +143,8 @@ class Query(QueryProductos,graphene.ObjectType):
             return tienda
         except Tienda.DoesNotExist:
             return None
+        
+    @login_required
+    @vendedor_required
+    def resolve_mis_productos(self, info, tienda_id):
+        return Producto.objects.filter(tienda_id=tienda_id)
