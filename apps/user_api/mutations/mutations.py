@@ -127,10 +127,11 @@ class EditarPerfil(graphene.Mutation):
         apellidos = graphene.String()
         celular = graphene.String()
         foto_perfil = Upload()
+        username = graphene.String()
 
     @login_required
     @log_mutation
-    def mutate(self, info, nombre=None, apellidos=None, celular=None, foto_perfil=None):
+    def mutate(self, info, nombre=None, apellidos=None, celular=None, foto_perfil=None, username = None):
         user = info.context.user
         if nombre:
             user.nombre = nombre
@@ -138,6 +139,10 @@ class EditarPerfil(graphene.Mutation):
             user.apellidos = apellidos
         if celular:
             user.celular = celular
+        if username:
+            if CustomUser.objects.filter(username=username).exclude(id=user.id).exists():
+                raise GraphQLError("Nombre de usuario en uso.")
+            user.username = username
             
         # Correcion para cambiar imagen de perfil
         if foto_perfil:

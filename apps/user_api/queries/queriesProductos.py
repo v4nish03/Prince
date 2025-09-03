@@ -11,6 +11,7 @@ class QueryProductos(graphene.ObjectType):
     producto_por_id = graphene.Field(ProductoType, producto_id=graphene.Int(required=True))
     productos_por_estado = graphene.List(ProductoType, estado=graphene.String(required=True))
 
+
     @validar_usuario_vendedor
     def resolve_mis_productos(self, info):
         tienda = info.context.user.tienda

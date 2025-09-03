@@ -147,4 +147,13 @@ class Query(QueryProductos,graphene.ObjectType):
     @login_required
     @vendedor_required
     def resolve_mis_productos(self, info, tienda_id):
-        return Producto.objects.filter(tienda_id=tienda_id)
+        user = info.context.user
+        try:
+            tienda = Tienda.objects.get(id=tienda_id)
+        except Tienda.DoesNotExist:
+            raise GraphQLError("La tienda no existe.")
+        
+        if tienda.propietario != user:
+            raise GraphQLError("No tienes permiso para ver los productos de esta tienda.")
+        
+        return Producto.objects.filter(tienda__id=tienda_id, tienda__propietario=user)
