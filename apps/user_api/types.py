@@ -60,9 +60,17 @@ class NotificacionType(DjangoObjectType):
         fields = ("id", "usuario", "tienda", "producto", "tipo", "mensaje", "leida", "fecha_creacion")
         
 class PerfilType(DjangoObjectType):
+    fotoPerfil = graphene.String()
     class Meta:
         model = Usuario
-        fields = ("id", "email", "username", "nombre", "apellidos", "celular", "is_seller", "password", "foto_perfil")
+        fields = ("id", "email", "username", "nombre", "apellidos", "celular", "is_seller",  "foto_perfil", "fotoPerfil")
+        
+    def resolve_fotoPerfil(self, info):
+        if self.foto_perfil:
+            request = info.context
+            return request.build_absolute_uri(self.foto_perfil.url)
+        return None
+        
         
 class ImagenType(DjangoObjectType):
     url = graphene.String()

@@ -184,6 +184,7 @@ GRAPHENE = {
     "SCHEMA": "apps.user_api.schema_user.schema_user",
     "MIDDLEWARE": [
         "graphql_jwt.middleware.JSONWebTokenMiddleware",
+        "apps.superadmin_api.utils.jwt_middleware.SuperAdminJWTMiddleware"
     ],
 }
     

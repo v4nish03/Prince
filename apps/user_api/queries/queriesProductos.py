@@ -6,6 +6,7 @@ from apps.user_api.types import ProductoType
 from apps.user_api.validador import validar_usuario_vendedor
 
 
+
 class QueryProductos(graphene.ObjectType):
     mis_productos = graphene.List(ProductoType)
     producto_por_id = graphene.Field(ProductoType, producto_id=graphene.Int(required=True))
@@ -19,9 +20,9 @@ class QueryProductos(graphene.ObjectType):
 
     @validar_usuario_vendedor
     def resolve_producto_por_id(self, info, producto_id):
-        tienda = info.context.user.tienda
-        try:
-            return Producto.objects.get(id=producto_id, tienda=tienda)
+        user = info.context.user
+        try:    
+            return Producto.objects.get(id=producto_id, tienda__propietario=user)
         except Producto.DoesNotExist:
             raise GraphQLError("Producto no encontrado o no pertenece a tu tienda.")
 

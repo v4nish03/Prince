@@ -3,6 +3,8 @@ from graphene_django import DjangoObjectType
 from ..models import SuperAdmin
 from ..utils.jwt_superadmin import generate_jwt
 from ..decorador import superadmin_required
+from ..types import UserType
+from ..models import SuperAdmin
 
 class SuperAdminType(DjangoObjectType):
     class Meta:
@@ -37,7 +39,7 @@ class LoginSuperAdmin(graphene.Mutation):
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
-    @superadmin_required
+    
     def mutate(self, info, email, password):
         try:
             superadmin = SuperAdmin.objects.get(email=email)
@@ -52,7 +54,40 @@ class LoginSuperAdmin(graphene.Mutation):
 
         return LoginSuperAdmin(ok=True, token=token, message="Login exitoso")
 
+# Mutaciones Creacion Admins
+class CrearAdmin(graphene.Mutation):
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+        username = graphene.String(required=True)
+        nombre = graphene.String(required=True)
+        apellidos = graphene.String(required=True)
+
+    @superadmin_required
+    def mutate(self, info, email, password, username, nombre, apellidos):
+        user_request = info.context.user
+        if not isinstance(user_request, SuperAdmin):
+            raise Exception("No tienes permisos para crear un administrador.")
+
+        from ..types import CustomUser
+        admin_user = CustomUser.objects.create_superuser(
+            email=email,
+            password=password,
+            username=username,
+            nombre=nombre,
+            apellidos=apellidos,
+        )
+            
+        return CrearAdmin(user=admin_user)
 
 class Mutation(graphene.ObjectType):
     crear_superadmin = CrearSuperAdmin.Field()
     login_superadmin = LoginSuperAdmin.Field()
+    crear_admin = CrearAdmin.Field()
+    
+
+    
+            
+            
