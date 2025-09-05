@@ -10,7 +10,7 @@ class Producto(models.Model):
         ('agotado', 'Agotado'),
     )
     tienda = models.ForeignKey(Tienda, on_delete=models.CASCADE, related_name='productos')
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, related_name='productos')
+    categoria = models.ManyToManyField(Categoria, related_name='productos', blank=True)
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True, null=True)
     precioBase = models.DecimalField(max_digits=10, decimal_places=2)

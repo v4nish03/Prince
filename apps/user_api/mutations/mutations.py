@@ -126,7 +126,7 @@ class EditarPerfil(graphene.Mutation):
         nombre = graphene.String()
         apellidos = graphene.String()
         celular = graphene.String()
-        foto_perfil = Upload()
+        foto_perfil = Upload(required=False)
         username = graphene.String()
 
     @login_required
@@ -146,7 +146,7 @@ class EditarPerfil(graphene.Mutation):
             
         # Correcion para cambiar imagen de perfil
         if foto_perfil:
-            user.foto_perfil = foto_perfil
+            user.foto_perfil.save(foto_perfil.name, foto_perfil, save=True)
         user.save()
         return EditarPerfil(ok=True, message="Perfil actualizado correctamente.")
 
@@ -234,23 +234,27 @@ class EditarTienda(graphene.Mutation):
     message = graphene.String()
 
     class Arguments:
+        tienda_id = graphene.Int(required=True)
         nombre = graphene.String()
         descripcion = graphene.String()
         direccion = graphene.String()
         telefono = graphene.String()
 
     @vendedor_required
-    def mutate(self, info, nombre=None, descripcion=None, direccion=None, telefono=None):
+    def mutate(self, info, tienda_id, nombre=None, descripcion=None, direccion=None, telefono=None):
         user = info.context.user
-        tienda = Tienda.objects.get(propietario=user, estado="activo")
-        
-        if nombre:
+        try:
+            tienda = Tienda.objects.get(id=tienda_id, propietario=user, estado="activo")
+        except Tienda.DoesNotExist:
+            raise GraphQLError("No tienes una tienda activa para editar.")
+            
+        if nombre is not None:
             tienda.nombre = nombre
-        if descripcion:
+        if descripcion is not None:
             tienda.descripcion = descripcion
-        if direccion:
+        if direccion is not None:
             tienda.direccion = direccion
-        if telefono:
+        if telefono is not None:
             tienda.telefono = telefono
         
         tienda.save()
@@ -261,7 +265,7 @@ class EliminarTienda(graphene.Mutation):
     message = graphene.String()
 
     class Arguments:
-        tienda_id = graphene.ID(required=True)
+        tienda_id = graphene.Int(required=True)
 
     @vendedor_required
     def mutate(self, info, tienda_id):
@@ -271,6 +275,7 @@ class EliminarTienda(graphene.Mutation):
             # Soft delete - marcar como inactiva
             tienda.estado = 'eliminada'
             tienda.save()
+            tienda.productos.update(estado='inactivo')
             return EliminarTienda(ok=True, message="Tienda desactivada correctamente.")
         except Tienda.DoesNotExist:
             return EliminarTienda(ok=False, message="Tienda no encontrada.")
@@ -287,32 +292,39 @@ class CrearProducto(graphene.Mutation):
         nombre = graphene.String(required=True)
         descripcion = graphene.String()
         precioBase = graphene.Float(required=True)
-        categoria_id = graphene.Int(required=True)
+        categoria_ids = graphene.List(graphene.Int, required=True)
         tienda_id = graphene.Int(required=True)
         
     @vendedor_required
-    def mutate(self, info, nombre, descripcion, precioBase, categoria_id, tienda_id):
+    def mutate(self, info, nombre, descripcion, precioBase, categoria_ids, tienda_id):
         user = info.context.user
         validar_usuario_vendedor(user)
 
-        try:
-            categoria = Categoria.objects.get(id=categoria_id)
-        except Categoria.DoesNotExist:
-            raise GraphQLError("Categoría no encontrada")
+        # Validar que tenga al menos una categoría
+        if not categoria_ids:
+            raise GraphQLError("Debe seleccionar al menos una categoría")
+
+        # Validar que todas las categorías existan
+        categorias = Categoria.objects.filter(id__in=categoria_ids)
+        if categorias.count() != len(categoria_ids):
+            raise GraphQLError("Una o más categorías no fueron encontradas")
 
         try:
-            tienda = Tienda.objects.get(id=tienda_id,propietario=user, estado='activo')
+            tienda = Tienda.objects.get(id=tienda_id, propietario=user, estado='activo')
         except Tienda.DoesNotExist:
             raise GraphQLError("El vendedor no tiene una tienda activa")
         
+        # Crear producto sin categorías primero
         producto = Producto.objects.create(
             nombre=nombre,
             descripcion=descripcion,
             precioBase=precioBase,
-            categoria=categoria,
             tienda=tienda,
             estado='activo'
         )
+        
+        # Asignar las categorías usando ManyToMany
+        producto.categoria.set(categorias)
         
         # Notificar a los seguidores de la subida de productos de la tienda
         seguidores = Seguimiento.objects.filter(tienda=tienda)
@@ -327,6 +339,7 @@ class CrearProducto(graphene.Mutation):
 
         return CrearProducto(ok=True, message="Producto creado correctamente", producto_id=producto.id)
 
+
 class EditarProducto(graphene.Mutation):
     ok = graphene.Boolean()
     message = graphene.String()
@@ -336,34 +349,35 @@ class EditarProducto(graphene.Mutation):
         nombre = graphene.String()
         descripcion = graphene.String()
         precio_base = graphene.Float()
-        categoria_id = graphene.Int()
+        categoria_ids = graphene.List(graphene.Int)
         estado = graphene.String()
-
+    @login_required
     @vendedor_required
-    def mutate(self, info, producto_id, nombre=None, descripcion=None, precio_base=None, categoria_id=None, estado=None):
+    def mutate(self, info, producto_id, nombre=None, descripcion=None, precio_base=None, categoria_ids=None, estado=None):
         user = info.context.user
-        tienda = Tienda.objects.get(propietario=user, estado="activo")
-
         try:
-            producto = Producto.objects.get(id=producto_id, tienda=tienda)
+            producto = Producto.objects.get(id=producto_id)
         except Producto.DoesNotExist:
             raise GraphQLError("Producto no encontrado.")
-
+        
+        # Verificar que el producto pertenezca a la tienda del vendedor
+        if producto.tienda.propietario != user:
+            raise GraphQLError("No tienes permiso para editar este producto.")
+        
         if nombre:
             producto.nombre = nombre
         if descripcion:
             producto.descripcion = descripcion
-        if precio_base:
+        if precio_base is not None:
             producto.precioBase = precio_base
-        if categoria_id:
-            try:
-                categoria = Categoria.objects.get(id=categoria_id)
-                producto.categoria = categoria
-            except Categoria.DoesNotExist:
-                raise GraphQLError("Categoría no válida.")
+        if categoria_ids is not None:
+            categorias = Categoria.objects.filter(id__in=categoria_ids)
+            if categorias.count() != len(categoria_ids):
+                raise GraphQLError("Una o más categorías no son válidas.")
+            producto.categoria.set(categorias)
         if estado in ['activo', 'inactivo', 'agotado']:
             producto.estado = estado
-
+    
         producto.save()
         return EditarProducto(ok=True, message="Producto actualizado correctamente.")
 
@@ -377,16 +391,15 @@ class EliminarProducto(graphene.Mutation):
     @vendedor_required
     def mutate(self, info, producto_id):
         user = info.context.user
-        tienda = Tienda.objects.get(propietario=user, estado="activo")
 
         try:
-            producto = Producto.objects.get(id=producto_id, tienda=tienda)
+            producto = Producto.objects.get(id=producto_id)
         except Producto.DoesNotExist:
             raise GraphQLError("Producto no encontrado.")
 
         producto.estado = 'inactivo'
         producto.save()
-        return EliminarProducto(ok=True, message="Producto eliminado (soft delete).")
+        return EliminarProducto(ok=True, message="Producto eliminado.")
 
 # ===== NUEVAS MUTACIONES DE VARIANTES =====
 
