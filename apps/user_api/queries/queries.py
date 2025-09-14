@@ -44,7 +44,6 @@ class Query(QueryProductos,graphene.ObjectType):
     productos_por_categoria = graphene.List(ProductoType, categoria_id=graphene.Int(required=True))
     productos_por_tipo = graphene.List(ProductoType, tipo=graphene.String(required=True))
     tiendas = graphene.List(TiendaType)
-    tienda_por_id = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
 
     def resolve_categorias(self, info):
         return Categoria.objects.filter()
@@ -73,13 +72,6 @@ class Query(QueryProductos,graphene.ObjectType):
     def resolve_tiendas(self, info):
         from apps.common.models.tienda import Tienda
         return Tienda.objects.all()
-
-    def resolve_tienda_por_id(self, info, tienda_id):
-        from apps.common.models.tienda import Tienda
-        try:
-            return Tienda.objects.get(id=tienda_id)
-        except Tienda.DoesNotExist:
-            raise GraphQLError("Tienda no encontrada")
 
     # --------- QUERIES PRIVADAS (con login) ---------
     perfil = graphene.Field(PerfilType)
@@ -127,6 +119,7 @@ class Query(QueryProductos,graphene.ObjectType):
     tienda_perfil = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
     mis_tiendas = graphene.List(TiendaType)
     mis_productos = graphene.List(ProductoType, tienda_id=graphene.Int(required=True))
+    tienda_por_id = graphene.Field(TiendaType, tienda_id=graphene.Int(required=True))
     
     @login_required
     @vendedor_required
@@ -157,3 +150,13 @@ class Query(QueryProductos,graphene.ObjectType):
             raise GraphQLError("No tienes permiso para ver los productos de esta tienda.")
         
         return Producto.objects.filter(tienda__id=tienda_id, tienda__propietario=user)
+    
+    @login_required
+    @vendedor_required
+    def resolve_tienda_por_id(self, info, tienda_id):
+        user = info.context.user
+        from apps.common.models.tienda import Tienda
+        try:
+            return Tienda.objects.get(id=tienda_id)
+        except Tienda.DoesNotExist:
+            raise GraphQLError("Tienda no encontrada")

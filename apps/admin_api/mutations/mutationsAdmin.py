@@ -282,7 +282,6 @@ class CreateCategoria(graphene.Mutation):
     class Arguments:
         nombre = graphene.String(required=True)
         icono = graphene.String(required=False)
-        color = graphene.String(required=False)
         categoria_padre_id = graphene.Int(required=False)
 
     @admin_required
@@ -297,7 +296,7 @@ class CreateCategoria(graphene.Mutation):
             except Categoria.DoesNotExist:
                 raise GraphQLError("La categoría padre no existe.")
 
-        categoria = Categoria.objects.create(nombre=nombre.strip(),icono=icono,color=color,categoriaPadre=categoria_padre)
+        categoria = Categoria.objects.create(nombre=nombre.strip(),icono=icono,categoriaPadre=categoria_padre)
         return CreateCategoria(ok=True,message="Categoría creada correctamente",categoria=categoria)
 class UpdateCategoria(graphene.Mutation):
     categoria = graphene.Field(CategoriaType)
@@ -307,11 +306,10 @@ class UpdateCategoria(graphene.Mutation):
         id = graphene.ID(required=True)
         nombre = graphene.String()
         icono = graphene.String(required=False)
-        color = graphene.String(required=False)
         categoria_padre_id = graphene.Int(required=False)
 
     @admin_required
-    def mutate(self, info, id, nombre=None, icono=None, color=None, categoria_padre_id=None):
+    def mutate(self, info, id, nombre=None, icono=None, categoria_padre_id=None):
         try:
             categoria = Categoria.objects.get(pk=id)
         except Categoria.DoesNotExist:
